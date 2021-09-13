@@ -10,5 +10,5 @@ Function GetPageTitle(a As String)
         GetPageTitle = .document.Title
         .Quit
     End With
- 
+    
  End Function
