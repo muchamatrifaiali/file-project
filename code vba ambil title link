@@ -1,0 +1,14 @@
+Function GetPageTitle(a As String)
+
+    Set ie = CreateObject("InternetExplorer.Application")
+    With ie
+        .Visible = False
+        .Navigate a
+        Do Until .ReadyState = 4
+            DoEvents
+        Loop
+        GetPageTitle = .document.Title
+        .Quit
+    End With
+ 
+ End Function
