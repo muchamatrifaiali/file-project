@@ -94,7 +94,6 @@ for file in os.listdir(f):
      
     #shutil.copy(source, destination)
     #os.rename(destination, finalName)
-
     h = open("hasil.csv", "a")
     h.write(hasil)
     h.close()
