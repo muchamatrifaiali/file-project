@@ -18,6 +18,11 @@ from math import sin, cos, sqrt, atan2, radians
 # approximate radius of earth in km
 R = 6373.0
 
+# convert waktu
+import datetime
+waktu = 1631626841
+detik = 1
+
 counter = 0
 detect = 0
 distance = 0
@@ -30,7 +35,7 @@ f = open("folder.txt", "r")
 f=f.read()
 print(f)
 source= f+"/"
-
+# print("mulai")
 hapus = open("hasil.csv", "w")
 hapus.write("Nama , Longitude , Latitude , golongan \n")
 hapus.close()
@@ -72,6 +77,7 @@ for file in os.listdir(f):
             detect=0
             
         counter=counter+1
+        detik = detik+1
 
     counter = restart
     destination ="hasil/"
@@ -82,6 +88,7 @@ for file in os.listdir(f):
        source = source + file
        finalName = destination + str(nomorCluster[counter-1])+ "___" + file
        destination = destination + file
+       waktuFinal = nomorCluster[counter-1]
     else:
         arrayLat.append(finalLat)
         arrayLong.append(finalLong)
@@ -90,10 +97,14 @@ for file in os.listdir(f):
         source = source + file
         finalName = destination + str(len(arrayLong)-1)+ "___" + file
         destination = destination + file
+        waktuFinal = len(arrayLong)-1
         
      
-    #shutil.copy(source, destination)
-    #os.rename(destination, finalName)
+    shutil.copy(source, destination)
+    waktuFinal = waktu+waktuFinal*1000+detik*1
+    print(waktuFinal)
+    os.utime(destination, (waktuFinal,waktuFinal))
+    os.rename(destination, finalName)
     h = open("hasil.csv", "a")
     h.write(hasil)
     h.close()
