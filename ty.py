@@ -43,9 +43,13 @@ hapus.close()
 #f = r'D:\atugas\python\resize photo\foto'
 for file in os.listdir(f):
     f_img = f+"/"+file
+    print(file)
     lokasi = gpsphoto.getGPSData(f_img)
     tampung = json.dumps(lokasi)
     tampung = json.loads(tampung)
+    print(len(tampung))
+    if len(tampung)<1:
+        continue
     finalLong = json.dumps(tampung["Longitude"])
     finalLat = json.dumps(tampung["Latitude"])
     #print(finalLong)
@@ -109,5 +113,4 @@ for file in os.listdir(f):
     h.write(hasil)
     h.close()
     print(hasil)
-   
-
+  
