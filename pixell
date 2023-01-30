@@ -1,5 +1,5 @@
 //@version=5
-indicator("RSI levels")
+indicator("Pixel Gubuk Saham")
 
 ////////////////////////////////// Stochastic
 periodK = input.int(14, title="%K Length", minval=1)
@@ -49,7 +49,7 @@ macd_signal = macd > signal
 // plot(macd, title="MACD", color=col_macd)
 // plot(signal, title="Signal", color=col_signal)
 
-momentum = stochastic_signal and signal <= signal
+momentum = stochastic_signal and macd_signal
     
 /////////////////////////////////////////////////////////////////////////CHOCH//////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -772,11 +772,24 @@ if ta.crossunder(close, btm_y) and btm_cross
 ////////////////////////////////////////
 ////////////////////////////////
 ///////////////////
+var float tren = na
+
+if bull_choch_alert or bull_ichoch_alert
+    tren := 1.0
+
+if bear_choch_alert or bear_ichoch_alert
+    tren := 0.0
+
+tren := tren > 0.0 ? 1 : 0
 
 
-plot(40,color = momentum ?color.green:stochastic_signal or macd>signal? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
+
+plot(40,color = tren ?color.green: color.red, style=plot.style_columns)
 plot(21,color = color.black, style=plot.style_columns)
-plot(20,color = bull_choch_alert ?color.green:not bear_choch_alert? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
+plot(20,color = momentum ?color.green:stochastic_signal or macd>signal? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
+
+
+// plot(20,color = bull_choch_alert ?color.green:not bear_choch_alert? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
 // plot(61,color = color.black, style=plot.style_columns)
 
 // plot(60,color = close>open ?color.green:color.red, style=plot.style_columns)
