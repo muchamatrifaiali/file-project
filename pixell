@@ -49,7 +49,8 @@ macd_signal = macd > signal
 // plot(macd, title="MACD", color=col_macd)
 // plot(signal, title="Signal", color=col_signal)
 
-momentum = stochastic_signal and macd_signal
+// momentum = stochastic_signal and macd_signal
+momentum = stochastic_signal
     
 /////////////////////////////////////////////////////////////////////////CHOCH//////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -786,7 +787,8 @@ tren := tren > 0.0 ? 1 : 0
 
 plot(40,color = tren ?color.green: color.red, style=plot.style_columns)
 plot(21,color = color.black, style=plot.style_columns)
-plot(20,color = momentum ?color.green:stochastic_signal or macd>signal? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
+plot(20,color = momentum ?color.green: color.red, style=plot.style_columns)
+// plot(20,color = momentum ?color.green: macd>signal? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
 
 
 // plot(20,color = bull_choch_alert ?color.green:not bear_choch_alert? color.rgb(211, 247, 52): color.red, style=plot.style_columns)
