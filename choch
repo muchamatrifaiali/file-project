@@ -172,7 +172,7 @@ show_eq = input(true, 'Equal High/Low'
   , group = 'EQH/EQL'
   , tooltip = SHOW_EQHL)
 
-eq_len = input.int(3, 'Bars Confirmation'
+eq_len = input.int(1, 'Bars Confirmation'
   , minval = 1
   , group = 'EQH/EQL'
   , tooltip = EQHL_BARS)
@@ -723,124 +723,124 @@ if ta.crossunder(close, btm_y) and btm_cross
 //Order Blocks
 //-----------------------------------------------------------------------------{
 //Set order blocks
-// var iob_boxes = array.new_box(0)
-// var ob_boxes = array.new_box(0)
+var iob_boxes = array.new_box(0)
+var ob_boxes = array.new_box(0)
 
-// //Delete internal order blocks box coordinates if top/bottom is broken
-// for element in iob_type
-//     index = array.indexof(iob_type, element)
+//Delete internal order blocks box coordinates if top/bottom is broken
+for element in iob_type
+    index = array.indexof(iob_type, element)
 
-//     if close < array.get(iob_btm, index) and element == 1
-//         array.remove(iob_top, index) 
-//         array.remove(iob_btm, index) 
-//         array.remove(iob_left, index) 
-//         array.remove(iob_type, index)
-//         bull_iob_break := true
+    if close < array.get(iob_btm, index) and element == 1
+        array.remove(iob_top, index) 
+        array.remove(iob_btm, index) 
+        array.remove(iob_left, index) 
+        array.remove(iob_type, index)
+        bull_iob_break := true
 
-//     else if close > array.get(iob_top, index) and element == -1
-//         array.remove(iob_top, index) 
-//         array.remove(iob_btm, index)
-//         array.remove(iob_left, index) 
-//         array.remove(iob_type, index)
-//         bear_iob_break := true
+    else if close > array.get(iob_top, index) and element == -1
+        array.remove(iob_top, index) 
+        array.remove(iob_btm, index)
+        array.remove(iob_left, index) 
+        array.remove(iob_type, index)
+        bear_iob_break := true
 
-// //Delete internal order blocks box coordinates if top/bottom is broken
-// for element in ob_type
-//     index = array.indexof(ob_type, element)
+//Delete internal order blocks box coordinates if top/bottom is broken
+for element in ob_type
+    index = array.indexof(ob_type, element)
 
-//     if close < array.get(ob_btm, index) and element == 1
-//         array.remove(ob_top, index) 
-//         array.remove(ob_btm, index) 
-//         array.remove(ob_left, index) 
-//         array.remove(ob_type, index)
-//         bull_ob_break := true
+    if close < array.get(ob_btm, index) and element == 1
+        array.remove(ob_top, index) 
+        array.remove(ob_btm, index) 
+        array.remove(ob_left, index) 
+        array.remove(ob_type, index)
+        bull_ob_break := true
 
-//     else if close > array.get(ob_top, index) and element == -1
-//         array.remove(ob_top, index) 
-//         array.remove(ob_btm, index)
-//         array.remove(ob_left, index) 
-//         array.remove(ob_type, index)
-//         bear_ob_break := true
+    else if close > array.get(ob_top, index) and element == -1
+        array.remove(ob_top, index) 
+        array.remove(ob_btm, index)
+        array.remove(ob_left, index) 
+        array.remove(ob_type, index)
+        bear_ob_break := true
 
-// iob_size = array.size(iob_type)
-// ob_size = array.size(ob_type)
+iob_size = array.size(iob_type)
+ob_size = array.size(ob_type)
 
-// if barstate.isfirst
-//     if show_iob
-//         for i = 0 to iob_showlast-1
-//             array.push(iob_boxes, box.new(na,na,na,na, xloc = xloc.bar_time))
-//     if show_ob
-//         for i = 0 to ob_showlast-1
-//             array.push(ob_boxes, box.new(na,na,na,na, xloc = xloc.bar_time))
+if barstate.isfirst
+    if show_iob
+        for i = 0 to iob_showlast-1
+            array.push(iob_boxes, box.new(na,na,na,na, xloc = xloc.bar_time))
+    if show_ob
+        for i = 0 to ob_showlast-1
+            array.push(ob_boxes, box.new(na,na,na,na, xloc = xloc.bar_time))
 
-// if iob_size > 0
-//     if barstate.islast
-//         display_ob(iob_boxes, iob_top, iob_btm, iob_left, iob_type, iob_showlast, false, iob_size)
+if iob_size > 0
+    if barstate.islast
+        display_ob(iob_boxes, iob_top, iob_btm, iob_left, iob_type, iob_showlast, false, iob_size)
 
-// if ob_size > 0
-//     if barstate.islast
-//         display_ob(ob_boxes, ob_top, ob_btm, ob_left, ob_type, ob_showlast, true, ob_size)
+if ob_size > 0
+    if barstate.islast
+        display_ob(ob_boxes, ob_top, ob_btm, ob_left, ob_type, ob_showlast, true, ob_size)
 
-// //-----------------------------------------------------------------------------}
-// //EQH/EQL
-// //-----------------------------------------------------------------------------{
-// var eq_prev_top = 0.
-// var eq_top_x = 0
+//-----------------------------------------------------------------------------}
+//EQH/EQL
+//-----------------------------------------------------------------------------{
+var eq_prev_top = 0.
+var eq_top_x = 0
 
-// var eq_prev_btm = 0.
-// var eq_btm_x = 0
+var eq_prev_btm = 0.
+var eq_btm_x = 0
 
-// if show_eq
-//     eq_top = ta.pivothigh(eq_len, eq_len)
-//     eq_btm = ta.pivotlow(eq_len, eq_len)
+if show_eq
+    eq_top = ta.pivothigh(eq_len, eq_len)
+    eq_btm = ta.pivotlow(eq_len, eq_len)
 
-//     if eq_top 
-//         max = math.max(eq_top, eq_prev_top)
-//         min = math.min(eq_top, eq_prev_top)
+    if eq_top 
+        max = math.max(eq_top, eq_prev_top)
+        min = math.min(eq_top, eq_prev_top)
         
-//         if max < min + atr * eq_threshold
-//             eqh_line = line.new(eq_top_x, eq_prev_top, n-eq_len, eq_top
-//               , color = bear_css
-//               , style = line.style_dotted)
+        if max < min + atr * eq_threshold
+            eqh_line = line.new(eq_top_x, eq_prev_top, n-eq_len, eq_top
+              , color = bear_css
+              , style = line.style_dotted)
 
-//             eqh_lbl = label.new(int(math.avg(n-eq_len, eq_top_x)), eq_top, 'EQH'
-//               , color = #00000000
-//               , textcolor = bear_css
-//               , style = label.style_label_down
-//               , size = size.tiny)
+            eqh_lbl = label.new(int(math.avg(n-eq_len, eq_top_x)), eq_top, 'EQH'
+              , color = #00000000
+              , textcolor = bear_css
+              , style = label.style_label_down
+              , size = size.tiny)
 
-//             if mode == 'Present'
-//                 line.delete(eqh_line[1])
-//                 label.delete(eqh_lbl[1])
+            if mode == 'Present'
+                line.delete(eqh_line[1])
+                label.delete(eqh_lbl[1])
             
-//             eqh_alert := true
+            eqh_alert := true
 
-//         eq_prev_top := eq_top
-//         eq_top_x := n-eq_len
+        eq_prev_top := eq_top
+        eq_top_x := n-eq_len
 
-//     if eq_btm 
-//         max = math.max(eq_btm, eq_prev_btm)
-//         min = math.min(eq_btm, eq_prev_btm)
+    if eq_btm 
+        max = math.max(eq_btm, eq_prev_btm)
+        min = math.min(eq_btm, eq_prev_btm)
         
-//         if min > max - atr * eq_threshold
-//             eql_line = line.new(eq_btm_x, eq_prev_btm, n-eq_len, eq_btm
-//               , color = bull_css
-//               , style = line.style_dotted)
+        if min > max - atr * eq_threshold
+            eql_line = line.new(eq_btm_x, eq_prev_btm, n-eq_len, eq_btm
+              , color = bull_css
+              , style = line.style_dotted)
 
-//             eql_lbl = label.new(int(math.avg(n-eq_len, eq_btm_x)), eq_btm, 'EQL'
-//               , color = #00000000
-//               , textcolor = bull_css
-//               , style = label.style_label_up
-//               , size = size.tiny)
+            eql_lbl = label.new(int(math.avg(n-eq_len, eq_btm_x)), eq_btm, 'EQL'
+              , color = #00000000
+              , textcolor = bull_css
+              , style = label.style_label_up
+              , size = size.tiny)
 
-//             eql_alert := true
+            eql_alert := true
 
-//             if mode == 'Present'
-//                 line.delete(eql_line[1])
-//                 label.delete(eql_lbl[1])
+            if mode == 'Present'
+                line.delete(eql_line[1])
+                label.delete(eql_lbl[1])
 
-//         eq_prev_btm := eq_btm
-//         eq_btm_x := n-eq_len
+        eq_prev_btm := eq_btm
+        eq_btm_x := n-eq_len
 
 //-----------------------------------------------------------------------------}
 //Fair Value Gaps
@@ -1063,8 +1063,8 @@ macd_signal = macd > signal
 // plot(macd, title="MACD", color=col_macd)
 // plot(signal, title="Signal", color=col_signal)
 
-momentum = stochastic_signal and macd_signal
-
+// momentum = stochastic_signal and macd_signal
+momentum = stochastic_signal
 var float stdet = na
 if momentum and tren > 0 
     stdet := stdet + 1.0
@@ -1090,6 +1090,13 @@ bgcolor(bull_color)
 
 momen_color = stdet==1 ? #04fd0c1c: #04fd0c00
 bgcolor(momen_color)
+
+kondisi1 = bull_choch_alert and macd_signal or bull_ichoch_alert and macd_signal
+kondisi2 = stdet==1
+kondisi3 = eql_alert
+// datasaya =  str.tostring(close,format.price)
+alertcondition( kondisi1 or kondisi2 or kondisi3, 'Momentum cuyyy',  'momen momen')
+// alertcondition( , 'Momen pantau saja', 'Momen pantau saja')
 
 alertcondition(bear_bos_alert, 'Bearish BOS', 'Bearish BOS formed')
 alertcondition(bear_choch_alert, 'Bearish CHoCH', 'Bearish CHoCH formed')
