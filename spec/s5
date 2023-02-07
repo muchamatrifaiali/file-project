@@ -1,0 +1,719 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © CMToni
+
+//@version=5
+indicator("screner IDX 2", overlay=true)
+
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//                                   INPUTS                                   \\
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+// Styling & Coloring
+// Table Position
+// timeframe = 'D'
+timeframe =timeframe.period
+// kodesaham = input.int(1, minval = 0)
+in_table_pos = input.string(title="Table Location  ", defval= "Middle Right", 
+     options =["Top Right",  "Middle Right",  "Bottom Right", 
+               "Top Center", "Middle Center", "Bottom Center", 
+               "Top Left",   "Middle Left",   "Bottom Left"], 
+     group= "Table Styling", inline= "1")
+
+
+// Table Size
+in_table_size = input.string(title="Table Size    ", defval="Small", 
+     options=["Auto",  "Huge",  "Large", "Normal", "Small", "Tiny"], 
+     group= "Table Styling" , inline= "2")
+
+// Color
+column_title_bgcol  = input.color(color.gray  , title="Column Title Color", 
+                      group = "Table Styling" , inline="3")
+cell_bgcol          = input.color(#aaaaaa     , title="Cell Color    ", 
+                      group = "Table Styling" , inline="4")
+cell_txtcol         = input.color(color.white , title="Text Color       ", 
+                      group = "Table Styling" , inline="5")
+prof_color          = input.color(color.green, title = "Gradient Colors  ", 
+                      group = "Table Styling", inline = "6")
+loss_color          = input.color(color.red,   title = "",
+                      group = "Table Styling", inline = "6")
+
+// Sorting
+table_sort_by       = input.string(title="Sort by     ", defval="Down",
+                         options =["None", "Symbol", "ATH", "Days ago", "Down", "Bounce"],
+                         group = "Table Sorting", inline="7")
+table_sort_dir      = input.string(title="Direction    ", defval="Ascending",
+                         options =["Ascending", "Descending"],
+                         group = "Table Sorting", inline="8")
+
+
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//                                   SYMBOLS                                  \\
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Flag
+
+var int on = na
+
+
+
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//                                CALCULATIONS                                \\
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+// ————— Function returning the sub-string of `_str` to the left of the `_of` separating character.
+f_strLeftOf(_str, _of) =>
+    // string _str: string to separate.
+    // string _op : separator character.
+    string[] _chars = str.split(_str, '')
+    int _len = array.size(_chars)
+    int _ofPos = array.indexof(_chars, _of)
+    string[] _substr = array.new_string(0)
+    if _ofPos > 0 and _ofPos <= _len - 1
+        _substr := array.slice(_chars, 0, _ofPos)
+        _substr
+    string _return = array.join(_substr, '')
+    _return
+
+// Get only symbol
+only_symbol(s) => 
+    array.get(str.split(s, ":"), 1)
+
+// Get Table Position
+table_pos(p) => 
+    switch p
+        "Top Right"     => position.top_right     
+        "Middle Right"  => position.middle_right   
+        "Bottom Right"  => position.bottom_right  
+        "Top Center"    => position.top_center    
+        "Middle Center" => position.middle_center
+        "Bottom Center" => position.bottom_center
+        "Top Left"      => position.top_left      
+        "Middle Left"   => position.middle_left 
+        => position.bottom_left
+
+
+// Get Table Size
+table_size(s) => 
+    switch s
+        "Auto"   => size.auto   
+        "Huge"   => size.huge   
+        "Large"  => size.large  
+        "Normal" => size.normal 
+        "Small"  => size.small
+        => size.tiny
+
+
+
+   
+
+    //Structure colors
+    // var bull_css = style == 'Monochrome' ? #b2b5be 
+    // : swing_bull_css
+
+    // var bear_css = style == 'Monochrome' ? #b2b5be 
+    // : swing_bear_css
+
+    // var ibull_css = style == 'Monochrome' ? #b2b5be 
+    // : swing_ibull_css
+
+    // var ibear_css = style == 'Monochrome' ? #b2b5be 
+    // : swing_ibear_css
+
+    //Swings
+    
+n = bar_index
+swings(len)=>
+    var os = 0
+    
+    upper = ta.highest(len)
+    lower = ta.lowest(len)
+
+    os := high[len] > upper ? 0 : low[len] < lower ? 1 : os[1]
+
+    top = os == 0 and os[1] != 0 ? high[len] : 0
+    btm = os == 1 and os[1] != 1 ? low[len] : 0
+
+    [top, btm]
+
+
+
+screener_func(flag) =>
+    out_screener_func = array.new_string(4, string(na))
+    
+    if flag 
+
+       ///////////////////////////////////////////////////////////////////////////////////
+       ////////////////////////////////////////////////////
+       /////////////////////////////////////////////
+       /////////////////////////////
+
+        length = 50
+        ifilter_confluence = false
+
+        var trend = 0, var itrend = 0
+
+        var top_y = 0., var top_x = 0
+        var btm_y = 0., var btm_x = 0
+
+        var itop_y = 0., var itop_x = 0
+        var ibtm_y = 0., var ibtm_x = 0
+
+        var trail_up = high, var trail_dn = low
+        var trail_up_x = 0,  var trail_dn_x = 0
+
+        var top_cross = true,  var btm_cross = true
+        var itop_cross = true, var ibtm_cross = true
+
+        var txt_top = '',  var txt_btm = ''
+
+        //Alerts
+        bull_choch_alert = false 
+        bull_bos_alert   = false 
+
+        bear_choch_alert = false 
+        bear_bos_alert   = false 
+
+        bull_ichoch_alert = false 
+        bull_ibos_alert   = false 
+
+        bear_ichoch_alert = false 
+        bear_ibos_alert   = false 
+
+        bull_iob_break = false 
+        bear_iob_break = false
+
+        bull_ob_break = false 
+        bear_ob_break = false
+
+        eqh_alert = false 
+        eql_alert = false 
+
+        //Structure colors
+        // var bull_css = style == 'Monochrome' ? #b2b5be 
+        // : swing_bull_css
+
+        // var bear_css = style == 'Monochrome' ? #b2b5be 
+        // : swing_bear_css
+
+        // var ibull_css = style == 'Monochrome' ? #b2b5be 
+        // : swing_ibull_css
+
+        // var ibear_css = style == 'Monochrome' ? #b2b5be 
+        // : swing_ibear_css
+
+        //Swings
+        [top, btm] = swings(length)
+
+        [itop, ibtm] = swings(5)
+
+        //-----------------------------------------------------------------------------} 
+        //Pivot High
+        //-----------------------------------------------------------------------------{
+        var line extend_top = na
+
+        // var label extend_top_lbl = label.new(na, na
+        // , color = TRANSP_CSS
+        // , textcolor = bear_css
+        // , style = label.style_label_down
+        // , size = size.tiny)
+
+        if top
+            top_cross := true
+            txt_top := top > top_y ? 'HH' : 'LH'
+
+            // if show_swings
+            //     // top_lbl = label.new(n-length, top, txt_top
+            //     // , color = TRANSP_CSS
+            //     // , textcolor = bear_css
+            //     // , style = label.style_label_down
+            //     // , size = size.small)
+
+            //     if mode == 'Present'
+            //         label.delete(top_lbl[1])
+
+            //Extend recent top to last bar
+            // line.delete(extend_top[1])
+            // extend_top := line.new(n-length, top, n, top
+            //   , color = bear_css)
+
+            top_y := top
+            top_x := n - length
+
+            trail_up := top
+            trail_up_x := n - length
+
+        if itop
+            itop_cross := true
+
+            itop_y := itop
+            itop_x := n - 5
+
+        //Trailing maximum
+        trail_up := math.max(high, trail_up)
+        trail_up_x := trail_up == high ? n : trail_up_x
+
+        //Set top extension label/line
+        // if barstate.islast and show_hl_swings
+        //     line.set_xy1(extend_top, trail_up_x, trail_up)
+        //     line.set_xy2(extend_top, n + 20, trail_up)
+
+        //     label.set_x(extend_top_lbl, n + 20)
+        //     label.set_y(extend_top_lbl, trail_up)
+        //     label.set_text(extend_top_lbl, trend < 0 ? 'Strong High' : 'Weak High')
+
+        //-----------------------------------------------------------------------------}
+        //Pivot Low
+        //-----------------------------------------------------------------------------{
+        var line extend_btm = na 
+
+        // var label extend_btm_lbl = label.new(na, na
+        // , color = TRANSP_CSS
+        // , textcolor = bull_css
+        // , style = label.style_label_up
+        // , size = size.tiny)
+
+        if btm
+            btm_cross := true
+            txt_btm := btm < btm_y ? 'LL' : 'HL'
+            
+            // if show_swings
+                // btm_lbl = label.new(n - length, btm, txt_btm
+                // , color = TRANSP_CSS
+                // , textcolor = bull_css
+                // , style = label.style_label_up
+                // , size = size.small)
+
+                // if mode == 'Present'
+                    // label.delete(btm_lbl[1])
+            
+            //Extend recent btm to last bar
+            // line.delete(extend_btm[1])
+            // extend_btm := line.new(n - length, btm, n, btm
+            //   , color = bull_css)
+
+            btm_y := btm
+            btm_x := n-length
+
+            trail_dn := btm
+            trail_dn_x := n-length
+
+        if ibtm
+            ibtm_cross := true
+
+            ibtm_y := ibtm
+            ibtm_x := n - 5
+
+        //Trailing minimum
+        trail_dn := math.min(low, trail_dn)
+        trail_dn_x := trail_dn == low ? n : trail_dn_x
+
+        //Set btm extension label/line
+        // if barstate.islast and show_hl_swings
+        //     line.set_xy1(extend_btm, trail_dn_x, trail_dn)
+        //     line.set_xy2(extend_btm, n + 20, trail_dn)
+
+        //     label.set_x(extend_btm_lbl, n + 20)
+        //     label.set_y(extend_btm_lbl, trail_dn)
+        //     label.set_text(extend_btm_lbl, trend > 0 ? 'Strong Low' : 'Weak Low')
+
+        //-----------------------------------------------------------------------------}
+        //Order Blocks Arrays
+        //-----------------------------------------------------------------------------{
+        var iob_top = array.new_float(0)
+        var iob_btm = array.new_float(0)
+        var iob_left = array.new_int(0)
+        var iob_type = array.new_int(0)
+
+        var ob_top = array.new_float(0)
+        var ob_btm = array.new_float(0)
+        var ob_left = array.new_int(0)
+        var ob_type = array.new_int(0)
+
+        //-----------------------------------------------------------------------------}
+        //Pivot High BOS/CHoCH
+        //-----------------------------------------------------------------------------{
+        //Filtering
+        var bull_concordant = true
+
+        if ifilter_confluence
+            bull_concordant := high - math.max(close, open) > math.min(close, open - low)
+
+        //Detect internal bullish Structure
+        if ta.crossover(close, itop_y) and itop_cross and top_y != itop_y and bull_concordant
+            bool choch = na
+            
+            if itrend < 0
+                choch := true
+                bull_ichoch_alert := true
+            else 
+                bull_ibos_alert := true
+            
+            txt = choch ? 'CHoCH' : 'BOS'
+
+            // if show_internals
+            //     if show_ibull == 'All' or (show_ibull == 'BOS' and not choch) or (show_ibull == 'CHoCH' and choch)
+            //         display_Structure(itop_x, itop_y, txt, ibull_css, true, true, size.tiny) 
+            
+            itop_cross := false
+            itrend := 1
+            
+            // //Internal Order Block
+            // if show_iob
+            //     ob_coord(false, itop_x, iob_top, iob_btm, iob_left, iob_type)
+
+        //Detect bullish Structure
+        if ta.crossover(close, top_y) and top_cross
+            bool choch = na
+            
+            if trend < 0
+                choch := true
+                bull_choch_alert := true
+            else 
+                bull_bos_alert := true
+
+            txt = choch ? 'CHoCH' : 'BOS'
+            
+            // if show_Structure
+            //     if show_bull == 'All' or (show_bull == 'BOS' and not choch) or (show_bull == 'CHoCH' and choch)
+            //         display_Structure(top_x, top_y, txt, bull_css, false, true, size.small)
+            
+            // //Order Block
+            // if show_ob
+            //     ob_coord(false, top_x, ob_top, ob_btm, ob_left, ob_type)
+
+            top_cross := false
+            trend := 1
+
+        //-----------------------------------------------------------------------------}
+        //Pivot Low BOS/CHoCH
+        //-----------------------------------------------------------------------------{
+        var bear_concordant = true
+
+        if ifilter_confluence
+            bear_concordant := high - math.max(close, open) < math.min(close, open - low)
+
+        //Detect internal bearish Structure
+        if ta.crossunder(close, ibtm_y) and ibtm_cross and btm_y != ibtm_y and bear_concordant
+            bool choch = false
+            
+            if itrend > 0
+                choch := true
+                bear_ichoch_alert := true
+            else 
+                bear_ibos_alert := true
+            
+            txt = choch ? 'CHoCH' : 'BOS'
+
+            // if show_internals
+            //     if show_ibear == 'All' or (show_ibear == 'BOS' and not choch) or (show_ibear == 'CHoCH' and choch)
+            //         display_Structure(ibtm_x, ibtm_y, txt, ibear_css, true, false, size.tiny)
+            
+            ibtm_cross := false
+            itrend := -1
+            
+            //Internal Order Block
+            // if show_iob
+            //     ob_coord(true, ibtm_x, iob_top, iob_btm, iob_left, iob_type)
+
+        //Detect bearish Structure
+        if ta.crossunder(close, btm_y) and btm_cross
+            bool choch = na
+            
+            if trend > 0
+                choch := true
+                bear_choch_alert := true
+            else 
+                bear_bos_alert := true
+
+            txt = choch ? 'CHoCH' : 'BOS'
+            
+            // if show_Structure
+            //     if show_bear == 'All' or (show_bear == 'BOS' and not choch) or (show_bear == 'CHoCH' and choch)
+            //         // display_Structure(btm_x, btm_y, txt, bear_css, false, false, size.small)
+            
+            // //Order Block
+            // if show_ob
+            //     ob_coord(true, btm_x, ob_top, ob_btm, ob_left, ob_type)
+
+            btm_cross := false
+            trend := -1
+
+        
+        var float tren = na
+
+        if bull_choch_alert or bull_ichoch_alert
+            tren := 1.0
+
+        if bear_choch_alert or bear_ichoch_alert
+            tren := 0.0
+
+        tren := tren > 0.0 ? 1 : 0
+
+
+
+        
+        ////////////////////////////////////////////////////////
+        ////////////////////////////////////////
+        ////////////////////////////////
+        ///////////////////
+
+        periodK = input.int(14, title="%K Length", minval=1)
+        smoothK = input.int(3, title="%K Smoothing", minval=1)
+        periodD = input.int(3, title="%D Smoothing", minval=1)
+        k = ta.sma(ta.stoch(close, high, low, periodK), smoothK)
+        d = ta.sma(k, periodD)
+
+        var cumVol = 0.
+        cumVol += nz(volume)
+        if barstate.islast and cumVol == 0
+            runtime.error("No volume is provided by the data vendor.")
+        ad = ta.cum(close==high and close==low or high==low ? 0 : ((2*close-low-high)/(high-low))*volume)
+
+        // beli = k>d and k < 20
+        potensi_up =  k > d and k < 80
+        // beli = k>d and k<20
+        // jual = k>d and k > 80
+        // potensi_down = k<d
+        stochastic_signal =  potensi_up
+        
+
+        fast_length = 12
+        slow_length = 26
+        src = close
+        signal_length = 9
+        sma_source = "EMA"
+        sma_signal = "EMA"
+        
+        
+        // Calculating
+        fast_ma = sma_source == "SMA" ? ta.sma(src, fast_length) : ta.ema(src, fast_length)
+        slow_ma = sma_source == "SMA" ? ta.sma(src, slow_length) : ta.ema(src, slow_length)
+        macd = fast_ma - slow_ma
+        signal = sma_signal == "SMA" ? ta.sma(macd, signal_length) : ta.ema(macd, signal_length)
+        hist = macd - signal
+        macd_signal = macd > signal
+        
+        
+        var float statusstochastic = na
+        // if stochastic_signal and macd_signal
+        if stochastic_signal
+            statusstochastic := 1.0
+        else
+            statusstochastic := 0.0
+        
+
+        // momentum = stochastic_signal and macd_signal
+        momentum = stochastic_signal
+        var float stdet = na
+        if momentum and tren > 0 
+            stdet := stdet + 1.0
+
+        else
+            stdet := 0.0
+
+        var float pembanding = na
+        if volume > ta.sma(volume,5) 
+            pembanding := 1
+        else
+            pembanding :=1000
+       
+        kondisi1 = bull_choch_alert and stochastic_signal  or bull_ichoch_alert and stochastic_signal or bull_bos_alert and stochastic_signal
+        kondisi2 = stdet==pembanding
+        // kondisi3 = eql_alert
+
+        // if kondisi1 or kondisi2
+        //     on := 1
+        // else
+        //     on :=0
+
+        // statuschochalert = kondisi1 or kondisi2 ? 5.0 : 0.0
+        // ATH
+        h  = close
+        // t  = volume
+        // h := bar_index == 0 ? high : high > h[1] ? high : h[1]
+        // t := bar_index == 0 ? time : high > h[1] ? time : t[1]
+
+        
+        // Percent down since ATH
+        // downATH = close/h-1
+
+        downATH = statusstochastic
+        // Days since ATH
+        daysATH = volume > ta.sma(volume,20)
+       
+        // Bounce recent low
+        // bounce = close/ta.lowest(daysATH)-1
+        // bounce = 0
+        bounce = kondisi1 or kondisi2 ? 50 : 0
+        
+        [h, downATH, daysATH, bounce]
+        
+        array.set(out_screener_func, 0, str.tostring(h))
+        array.set(out_screener_func, 1, str.tostring(daysATH))
+        array.set(out_screener_func, 2, str.tostring(downATH, "#.##%"))
+        // array.set(out_screener_func, 2, "ok")
+        // array.set(out_screener_func, 3, "ok")
+        array.set(out_screener_func, 3, str.tostring(bounce, "#.##%"))
+   
+    out_screener_func
+
+
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//                               IMPORTING DATA                               \\
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//                                   OUTPUT                                   \\
+////////////////////////////// ~~~~~~~~~~~~~~~~~~ \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Set Table
+var tbl = table.new(table_pos(in_table_pos),  5,  42, frame_color = #151715, 
+         frame_width=1, border_width=1, border_color=color.new(color.white, 100))
+
+
+// Set Up Screener Matrix
+screener_mtx = matrix.new<string>(50,  5, na)
+
+var float notif = na
+// Fill Up Matrix Cells 
+mtx(mtxName, row, symbol, s_data)=>
+    if not na(array.get(s_data, 0))
+        matrix.set(mtxName, row,  0, symbol    ) //Symbol
+        matrix.set(mtxName, row,  1, array.get(s_data, 0)) //ATH
+        matrix.set(mtxName, row,  2, array.get(s_data, 1)) //Days
+        matrix.set(mtxName, row,  3, array.get(s_data, 2)) //Down
+        matrix.set(mtxName, row,  4, array.get(s_data, 3)) //Low
+
+
+dat(isi,no) =>
+    s_dataout = request.security(isi, timeframe, screener_func(true))  
+    // outnya = mtx(screener_mtx  ,0,only_symbol("BINANCE:"+isi),s_dataout)
+    if not na(array.get(s_dataout, 0))
+        matrix.set(screener_mtx, no,  0, only_symbol(isi)    ) //Symbol
+        matrix.set(screener_mtx, no,  1, array.get(s_dataout, 0)) //ATH
+        matrix.set(screener_mtx, no,  2, array.get(s_dataout, 1)) //Days
+        matrix.set(screener_mtx, no,  3, array.get(s_dataout, 2)) //Down
+        matrix.set(screener_mtx, no,  4, array.get(s_dataout, 3)) //Low
+
+    s_dataout
+
+// kodesaham2 = kodesaham 
+if barstate.islast 
+    
+    // dat("IDX:CNTB",0)
+    // dat("IDX:CNTX",1)
+    dat("IDX:COAL",2)
+    dat("IDX:COCO",3)
+    dat("IDX:COWL",4)
+    dat("IDX:CPIN",5)
+    dat("IDX:CPRI",6)
+    dat("IDX:CPRO",7)
+    dat("IDX:CRAB",8)
+    dat("IDX:CSAP",9)
+    dat("IDX:CSIS",10)
+    dat("IDX:CSMI",11)
+    dat("IDX:CSRA",12)
+    dat("IDX:CTBN",13)
+    dat("IDX:CTRA",14)
+    dat("IDX:CTTH",15)
+    dat("IDX:DADA",16)
+    dat("IDX:DART",17)
+    dat("IDX:DAYA",18)
+    dat("IDX:DCII",19)
+    dat("IDX:DEAL",20)
+    dat("IDX:DEFI",21)
+    dat("IDX:DEPO",22)
+    dat("IDX:DEWA",23)
+    dat("IDX:DEWI",24)
+    dat("IDX:DFAM",25)
+    dat("IDX:DGIK",26)
+    dat("IDX:DGNS",27)
+    dat("IDX:DIGI",28)
+    dat("IDX:DILD",29)
+    dat("IDX:DIVA",30)
+    dat("IDX:DKFT",31)
+    dat("IDX:DLTA",32)
+    dat("IDX:DMAS",33)
+    dat("IDX:DMMX",34)
+    dat("IDX:DMND",35)
+    dat("IDX:DNAR",36)
+    dat("IDX:DNET",37)
+    dat("IDX:DOID",38)
+    dat("IDX:DPNS",39)
+    
+
+    
+    if table_sort_by != "None"
+        matrix.sort(screener_mtx, table_sort_by == "Symbol" ? 0 : table_sort_by == "ATH" ? 1 : table_sort_by == "Days ago" ? 2 : table_sort_by == "Down" ? 3 : 4, table_sort_dir == "Ascending" ?  order.ascending : order.descending)
+
+    
+    //Remove NaN rows
+    q= 0 
+    while q <= matrix.rows(screener_mtx) - 1 and matrix.rows(screener_mtx) > 1
+        if na(matrix.get(screener_mtx, q, 0))
+            matrix.remove_row(screener_mtx, q)
+            q := q
+        else 
+            q := q + 1
+    
+    // Fill up Table
+    // Columns title 
+    table.cell(tbl,  0, 0, 'Symbol',     bgcolor   = column_title_bgcol, 
+                 text_color = cell_txtcol, text_size = table_size(in_table_size))
+    table.cell(tbl,  1, 0, 'Harga',      bgcolor   = column_title_bgcol, 
+                 text_color = cell_txtcol, text_size = table_size(in_table_size))
+    table.cell(tbl,  2, 0, 'Volume',     bgcolor   = column_title_bgcol, 
+                 text_color = cell_txtcol, text_size = table_size(in_table_size))
+    table.cell(tbl,  3, 0, 'Momentum',     bgcolor   = column_title_bgcol, 
+                 text_color = cell_txtcol, text_size = table_size(in_table_size))
+    table.cell(tbl,  4, 0, 'Trend',     bgcolor   = column_title_bgcol, 
+                 text_color = cell_txtcol, text_size = table_size(in_table_size))
+
+    // Output Values
+    max_row = 1
+    for i = 0 to matrix.rows(screener_mtx) - 1
+    
+        if not na(matrix.get(screener_mtx, i, 1)) 
+            down_value1 = str.tonumber(f_strLeftOf(matrix.get(screener_mtx, i, 3), "%"))
+            bounce_value1 = str.tonumber(f_strLeftOf(matrix.get(screener_mtx, i, 4), "%"))
+            //down_value1 >0 and bounce_value1>0
+            if down_value1 >0 and bounce_value1>0
+            // Symbol 
+                
+                table.cell(tbl, 0, i + 2, matrix.get(screener_mtx, i, 0), text_halign = text.align_center, bgcolor = column_title_bgcol, text_color = cell_txtcol, text_size = table_size(in_table_size))
+               
+                // ATH
+                table.cell(tbl, 1, i + 2, matrix.get(screener_mtx, i, 1), text_halign = text.align_center, bgcolor = cell_bgcol,text_color = cell_txtcol, text_size = table_size(in_table_size))
+                
+                // Days
+                table.cell(tbl, 2, i + 2, matrix.get(screener_mtx, i, 2), text_halign = text.align_center, bgcolor = cell_bgcol,text_color = cell_txtcol, text_size = table_size(in_table_size))
+                
+
+                // Down
+                down_value = str.tonumber(f_strLeftOf(matrix.get(screener_mtx, i, 3), "%"))
+                down_col = color.from_gradient(down_value, -100, 100, color.red, color.green)
+                statusmomen   =  down_value>0 ? "BULL" : "BEAR"
+                table.cell(tbl, 3, i + 2, statusmomen,text_halign = text.align_center, bgcolor = down_col, text_color = cell_txtcol, text_size = table_size(in_table_size))
+
+                // table.cell(tbl, 3, i + 2, matrix.get(screener_mtx, i, 3),
+                //      text_halign = text.align_center, bgcolor = down_col, 
+                //      text_color = cell_txtcol, text_size = table_size(in_table_size))
+
+                // Bounce
+                bounce_value = str.tonumber(f_strLeftOf(matrix.get(screener_mtx, i, 4), "%"))
+                bounce_col = color.from_gradient(bounce_value, -100, 100, color.rgb(255, 0, 0), color.rgb(0, 255, 0, 50))
+                statuschoch   =  bounce_value>0 ? "BULL" : "BEAR"
+                table.cell(tbl, 4, i + 2, statuschoch, text_halign = text.align_center, bgcolor = bounce_col, text_color = cell_txtcol, text_size = table_size(in_table_size))
+                        
+                max_row := max_row + 1
+                notif := notif +1.0
+                if notif > 1000
+                    notif := 5
+                
+            else
+                notif := 0.0
+
+                
+
+alertcondition(notif==1.0,'momen ▲', 'momen momen')
