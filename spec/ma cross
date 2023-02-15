@@ -1,0 +1,46 @@
+// @version=3
+//
+// Title "EMA 3 in 1".
+// Revision: 5
+// Author: Skrymtn
+//
+
+study(shorttitle="EMA:3in1.", title="MA 200 (3+7 crossover)", overlay=true)
+
+// Moving average
+hma(src, len) => wma(2 * wma(src, len/2) - wma(src, len), round(sqrt(len)))
+
+ma = input(title="MA type", defval="SMA", options=["EMA", "SMA", "Hull", "WMA"])
+
+MA(price, length) => 
+    current = if ma == 'EMA'
+        ema(price, length)
+    else
+        if ma == 'SMA'
+            sma(price, length)
+        else
+            if ma == 'WMA'
+                wma(price, length)
+            else
+                hma(price, length)
+    current
+    
+price =  input(close, title='Price')
+maFast = MA(price, input(13, title='MA Fast'))
+maSlow = MA(price, input(48, title='MA Slow'))
+maTurtle = MA(price, input(200, title='MA Turtle'))
+viewCrossFlag = input(false, title='View MA Slow/Turtle crossover')
+
+plot(maTurtle, title="MA Turtle", style=circles, linewidth=2, color=maFast>=maSlow ? #CCCCCC : #222222)
+plot(maFast, title="MA Fast", style=line, linewidth=2, color=olive, transp=0)
+plot(maSlow, title="MA Slow", style=line, linewidth=2, color=maroon, transp=0)
+
+plotchar(viewCrossFlag and crossunder(maSlow, maTurtle), char='✜', color=red, location=location.top, transp=0, size=size.tiny)
+plotchar(viewCrossFlag and crossover(maSlow, maTurtle), char='✜', color=green, location=location.bottom, transp=0, size=size.tiny)
+
+alertcondition(crossunder(maFast, maSlow), title='MA cross sell', message='We have a MA sell signal!')
+alertcondition(crossover(maFast, maSlow), title='MA cross buy', message='We have a MA buy signal!')
+
+// Remember to use SMA 50 and SMA 200 on daily frame to get valid Golden and Death cross signals.
+alertcondition(crossunder(maSlow, maTurtle), title='Death cross', message='Death cross. We have a MA slow crossing under the Turtle. Generally a strong sell signal!')
+alertcondition(crossover(maSlow, maTurtle), title='Golden cross', message='Golden cross. We have a MA slow crossing over the Turtle. Generally a strong buy signal!')
