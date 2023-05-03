@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!-- saved from url=(0036)https://wordcloud2-js.timdream.org/# -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="canonical" href="https://wordcloud2-js.timdream.org/">
+  <title>wordcloud2.js - tag cloud/Wordle presentation on 2D canvas or HTML</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- Le styles -->
+  <link href="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/bootstrap.min.css" rel="stylesheet">
+  <link href="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/css" id="link-webfont" rel="stylesheet">
+  <script type="text/javascript" async="" defer="" src="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/matomo.js.download"></script><script defer="" src="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/jquery.min.js.download"></script>
+  <script defer="" src="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/bootstrap.min.js.download"></script>
+  <script defer="" src="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/wordcloud2.js.download"></script>
+  <script defer="" src="./wordcloud2.js - tag cloud_Wordle presentation on 2D canvas or HTML_files/index.js.download"></script>
+
+  <style>
+  @media (min-width: 980px) {
+    body { padding-top: 60px; }
+  }
+
+  *[hidden] {
+    display: none;
+  }
+
+  #canvas-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .canvas {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas.hide {
+    display: none;
+  }
+
+  #html-canvas > span {
+    transition: text-shadow 1s ease, opacity 1s ease;
+    -webkit-transition: text-shadow 1s ease, opacity 1s ease;
+    -ms-transition: text-shadow 1s ease, opacity 1s ease;
+  }
+
+  #html-canvas > span:hover {
+    text-shadow: 0 0 10px, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff;
+    opacity: 0.5;
+  }
+
+  #box {
+    pointer-events: none;
+    position: absolute;
+    box-shadow: 0 0 200px 200px rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    cursor: pointer;
+  }
+
+  textarea {
+    height: 20em;
+  }
+  #config-option {
+    font-family: monospace;
+  }
+  select { width: 100%; }
+
+  #loading {
+    animation: blink 2s infinite;
+    -webkit-animation: blink 2s infinite;
+  }
+  @-webkit-keyframes blink {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes blink {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  </style>
+  <!-- Matomo -->
+  <script type="text/javascript">
+    var _paq = window._paq || [];
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="//stats.timdream.org/";
+      _paq.push(['setTrackerUrl', u+'matomo.php']);
+      _paq.push(['setSiteId', '6']);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <!-- End Matomo Code -->
+</head>
+<body>
+  <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="brand" href="https://wordcloud2-js.timdream.org/">wordcloud2.js</a>
+        <ul class="nav">
+          <li class="active"><a href="https://wordcloud2-js.timdream.org/">Demo</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js">Code</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js/blob/gh-pages/README.md">README</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js/blob/gh-pages/API.md">API</a></li>
+          <li><a href="https://timdream.org/">timdream</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on 2D canvas or HTML</p>
+    <div id="not-supported" class="alert" hidden="">
+      <strong>Your browser is not supported.</strong>
+    </div>
+    <form id="form" method="get" action="https://wordcloud2-js.timdream.org/">
+      <div class="row">
+        <div class="span12" id="canvas-container">
+          <canvas id="canvas" class="canvas" width="1170" height="760" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
+          <div id="html-canvas" class="canvas hide" style="width: 1170px; height: 760px; background-color: rgb(0, 31, 0); position: relative;"><span style="position: absolute; display: block; font: 15px / 15px &quot;Finger Paint&quot;, cursive, sans-serif; left: 557.04px; top: 380.712px; width: 37.92px; height: 15.72px; white-space: nowrap; transform: rotate(0deg); transform-origin: 50% 40%; color: rgb(240, 240, 192);">RUDI</span><span style="position: absolute; display: block; font: 15px / 15px &quot;Finger Paint&quot;, cursive, sans-serif; left: 562.845px; top: 362.712px; width: 44.31px; height: 15.72px; white-space: nowrap; transform: rotate(0deg); transform-origin: 50% 40%; color: rgb(240, 240, 192);">HANA</span><span style="position: absolute; display: block; font: 15px / 15px &quot;Finger Paint&quot;, cursive, sans-serif; left: 558.968px; top: 344.712px; width: 34.065px; height: 15.72px; white-space: nowrap; transform: rotate(0deg); transform-origin: 50% 40%; color: rgb(240, 240, 192);">hadi</span></div>
+        <div id="box" style="left: 540px; top: 378px; width: 72px; height: 27px;" hidden=""></div></div>
+        <div class="span6">
+          <button class="btn btn-primary" type="submit" fdprocessedid="hgneye">Run</button>
+          <div class="btn-group">
+            <button class="btn" type="button" id="btn-canvas" disabled="" title="Show drawn canvas element.">Canvas</button>
+            <button class="btn" type="button" id="btn-html-canvas" title="Show Word Cloud with elements." fdprocessedid="urnekm">Elements</button>
+          </div>
+          <a class="btn" id="btn-save" href="https://wordcloud2-js.timdream.org/#" download="wordcloud.png" title="Save canvas">Save Image</a>
+          <span id="loading" hidden="">......</span>
+        </div>
+        <div class="span6">
+          <select id="examples" class="" fdprocessedid="d9ndeg">
+            <option selected="">Examples</option>
+            <option value="love">Love of the world</option>
+            <option value="web-tech">Web Technologies</option>
+            <option value="quick-fox">The quick brown fox</option>
+            <option value="les-miz">Les Misérables</option>
+            <option value="red-chamber" lang="zh-tw">紅樓夢</option>
+            <option value="taiwan">Taiwan</option>
+          </select>
+        </div>
+      </div>
+      <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="https://wordcloud2-js.timdream.org/#tab-list" data-toggle="tab">List</a></li>
+          <li><a href="https://wordcloud2-js.timdream.org/#tab-config" data-toggle="tab">Configuration</a></li>
+          <li><a href="https://wordcloud2-js.timdream.org/#tab-dim" data-toggle="tab">Dimension</a></li>
+          <li><a href="https://wordcloud2-js.timdream.org/#tab-mask" data-toggle="tab">Mask image</a></li>
+          <li><a href="https://wordcloud2-js.timdream.org/#tab-webfont" data-toggle="tab">Web Font</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-list">
+            <textarea id="input-list" placeholder="Put your list here." rows="2" cols="30" class="span12"></textarea>
+          </div>
+          <div class="tab-pane" id="tab-config">
+            <label>Options as a literal Javascript object</label>
+            <textarea id="config-option" placeholder="Put your literal option object here." rows="2" cols="30" class="span12"></textarea>
+            <!--
+            XXX Security consideration:
+              Do not implement a feature that allow users to submit/share their script here
+              directly or indirectly. Doing so would invite XSS attack on your site.
+            -->
+            <span class="help-block">See <a href="https://github.com/timdream/wordcloud2.js/blob/gh-pages/API.md">API</a> document for available options.</span>
+          </div>
+          <div class="tab-pane" id="tab-dim">
+            <label for="config-width">Width</label>
+            <div class="input-append">
+              <input type="number" id="config-width" class="input-small" min="1">
+              <span class="add-on">px</span>
+            </div>
+            <span class="help-block">Leave blank to use page width.</span>
+            <label for="config-height">Height</label>
+            <div class="input-append">
+              <input type="number" id="config-height" class="input-small" min="1">
+              <span class="add-on">px</span>
+            </div>
+            <span class="help-block">Leave blank to use 0.65x of the width.</span>
+            <label for="config-height">Device pixel density (<span title="Dots per &#39;px&#39; unit">dppx</span>)</label>
+            <div class="input-append">
+              <input type="number" id="config-dppx" class="input-mini" min="1" value="1" required="">
+              <span class="add-on">x</span>
+            </div>
+            <span class="help-block">Adjust the weight, grid size, and canvas pixel size for high pixel density displays.</span>
+          </div>
+          <div class="tab-pane" id="tab-mask">
+            <label for="config-mask">Image mask</label>
+            <input type="file" id="config-mask"><button id="config-mask-clear" class="btn" type="button">Clear</button>
+            <span class="help-block">A silhouette image which the white area will be excluded from drawing texts. The <code>shape</code> option will continue to apply as the shape of the cloud to grow.</span>
+            <span class="help-block">When there is an image set, <code>clearCanvas</code> will be set to <code>false</code>.</span>
+          </div>
+          <div class="tab-pane" id="tab-webfont">
+            <label for="config-css">Extra Web Font CSS</label>
+            <input type="url" id="config-css" size="40" class="input-xxlarge" placeholder="https://fonts.googleapis.com/css?family=Libre+Baskerville:700" value="https://fonts.googleapis.com/css?family=Finger+Paint">
+            <span class="help-block">Find your favorite font on <a href="https://www.google.com/webfonts">Google Web Fonts</a>. Re-run if the font didn't load in time.</span>
+         </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+</body></html>
