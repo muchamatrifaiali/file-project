@@ -1,0 +1,43 @@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.1.1/hls.min.js"></script>
+    <script type="text/javascript" src="https://cdn.gumlytics.com/insights/1.1/gumlet-insights.min.js"></script>
+
+    <div id="player" style="width: 400px"></div>
+    <video id="my-video" preload="true" width="100%" controls></video>
+    <script type="text/javascript">
+      document.getElementsByClassName("bg-photo-container")[0].style.display = "none";
+      document.getElementsByClassName("bg-photo-overlay")[0].style.display = "none";
+      
+      
+      var video = document.getElementById('my-video');
+      var time = new Date().getTime();
+      var hls = new Hls({
+        // disable preload
+        autoStartLoad: true
+      });
+      var hls = new Hls(config);
+
+      hls.attachMedia(video);
+      hls.loadSource('https://b.webcache.maxindo.net.id/dhamma/dhamma.m3u8');
+
+      video.addEventListener('play', function() {
+        // needed when preload is disabled
+        hls.startLoad();
+        video.muted = false;
+      });
+      hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+      video.muted = true;
+      video.play();
+      
+    });
+
+      // Create the Gumlet Configuration JSON
+      var config = {
+        property_id: 'TEST_PROPERTY', // required:  please replace with correct property id.
+      };
+
+      var analytics = gumlet.insights(config);
+
+      analytics.registerHLSJSPlayer(hls, {starttime: time});
+
+    </script>
+ 
