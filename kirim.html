@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Form Kirim Data</title>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div id="countdown" class="mt-3 text-danger">
+      <h1>tunggu <span id="countdown-number">5</span> detik</h1>
+    </div>
+
+    <div id="form-container">
+        <div class="form-group">
+            <label for="inputData">Input kode link youtube anda contoh https://youtu.be/<strong>0Ruydz-mxr4</strong></label>
+            <input type="text" class="form-control" id="inputData" placeholder="Masukan kodenya saja yang tebal seperti diatas">
+        </div>
+        <button id="submitBtn" class="btn btn-primary">Kirim</button>
+    </div>
+    <div id="successMessage" class="d-none mt-3">
+        <p class="text-success">video anda sedang menunggu antrian untuk di proses</p>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+     $("#form-container").hide();
+
+    // Mulai hitungan mundur
+    var count = 5;
+    var countdownInterval = setInterval(function() {
+        count--;
+        $("#countdown-number").text(count);
+        if (count <= 0) {
+            clearInterval(countdownInterval); // Menghentikan hitungan mundur
+            $("#countdown").hide(); // Menyembunyikan elemen hitungan mundur
+            $("#form-container").show(); // Menampilkan form
+        }
+    }, 1000);
+
+    $("#submitBtn").click(function() {
+        var dataInput = $("#inputData").val();
+        var url = "https://script.google.com/macros/s/AKfycbwevUTWsLcOKxTkXuZE_Ocw89--Mim1m1EZ99if22a1p5jelzwzw_o97qW8ltQadJDh/exec";
+        var fullUrl = url + "?action=add&data1=value14&data2=" + dataInput + "&data3=value3";
+        
+        $.ajax({
+    url: fullUrl,
+    type: "GET",
+    success: function(response) {
+        console.log(response);  // Mencetak respons ke konsol
+        if (response ==="Data added successfully") {
+            $("#form-container").hide();
+            $("#successMessage").removeClass("d-none");
+        } else {
+            alert("Gagal mengirim data!");
+        }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log("Error:", textStatus, errorThrown);  // Mencetak pesan kesalahan ke konsol
+        alert("Terjadi kesalahan. Mohon coba lagi.");
+    }
+});
+
+    });
+});
+</script>
+
+</body>
+</html>
