@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed Video YouTube dengan Timer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #video-container {
+      position: relative;
+      width: 100%;
+      height: 315px;
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+    }
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #000;
+      padding: 5px 10px;
+    }
+    #next-button {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #000;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Embed Video YouTube dengan Timer</h1>
+  <div id="video-container">
+    <iframe id="video" src="https://www.youtube.com/embed/Ub9U5GRAFpE?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <span id="timer">00:00:00</span>
+  </div>
+  <button id="next-button" style="width: 150px;">Next</button>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function() {
+    var video = $("#video")[0];
+    var timer = $("#timer");
+    var nextButton = $("#next-button");
+
+    var totalTime = 20; // 3 menit dalam detik
+    var currentTime = 0;
+    var countime= 30;
+
+    var interval = setInterval(function() {
+      currentTime++;
+      var minutes = Math.floor(currentTime / 60);
+      var seconds = currentTime % 60;
+      timer.text(pad(minutes) + ":" + pad(seconds));
+
+      if (currentTime >= totalTime) {
+        currentTime = 0;
+        // clearInterval(interval);
+        // totalTime=totalTime+countime;
+        loadIframe();
+        nextButton.show();
+      }
+    }, 1000);
+
+    video.addEventListener("play", function() {
+      interval = setInterval(function() {
+        currentTime++;
+        var minutes = Math.floor(currentTime / 60);
+        var seconds = currentTime % 60;
+        timer.text(pad(minutes) + ":" + pad(seconds));
+
+        if (currentTime >= totalTime) {
+          clearInterval(interval);
+          nextButton.show();
+        }
+      }, 1000);
+    });
+
+    video.addEventListener("pause", function() {
+      clearInterval(interval);
+    });
+
+    nextButton.click(function() {
+      // Lakukan aksi selanjutnya
+      // Contoh: pindah ke video berikutnya
+    });
+
+    function pad(number) {
+      if (number < 10) {
+        return "0" + number;
+      }
+      return number;
+    }
+
+    function loadIframe() {
+        var url = "https://script.google.com/macros/s/AKfycbwevUTWsLcOKxTkXuZE_Ocw89--Mim1m1EZ99if22a1p5jelzwzw_o97qW8ltQadJDh/exec?action=get";
+        
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(response) {
+                console.log("Response:", response);  // Mencetak respons ke konsol
+                
+                // Jika Anda mendapatkan URL dari respons
+                if (Array.isArray(response) && response.length > 1) {
+                    var youtubeCode = response[1];  // Mengambil elemen kedua dari array respons
+                    var youtubeUrl = "https://www.youtube.com/embed/" + youtubeCode + "?autoplay=1&mute=1";
+                    
+                    // Setel URL yang telah diubah sebagai src untuk iframe
+                    $("#video").attr("src", youtubeUrl);
+                } else {
+                    console.log("URL tidak ditemukan dalam respons.");
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);  // Mencetak pesan kesalahan ke konsol
+                alert("Terjadi kesalahan. Mohon coba lagi.");
+            }
+        });
+    }
+  });
+  </script>
+</body>
+</html>
