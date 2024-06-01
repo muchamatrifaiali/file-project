@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed Video YouTube dengan Timer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #video-container {
+      position: relative;
+      width: 100%;
+      height: 315px;
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+    }
+    #timer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #000;
+      padding: 5px 10px;
+    }
+    #next-button {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      right: 25%;
+      padding: 10px 15px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #000;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h3 id="nama"></h3>
+  <h1 id="judul">besar doorprize dana kaget untuk 100 orang sekarang adalah</h1>
+  <h2>klik tombol untuk menambahkan +Rp 10</h2>
+  <div id="video-container">
+    <iframe id="video" src="https://www.youtube.com/embed/vKYWiLEItn0?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <span id="timer">00:00:00</span>
+  </div>
+  <button id="next-button" style="width: 50%;">Tambah Rp 10</button>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const kode = urlParams.get('kode')
+    console.log(kode);
+    document.getElementById("nama").innerHTML = "haloooo   " + kode;
+
+    var video = $("#video")[0];
+    var timer = $("#timer");
+    var nextButton = $("#next-button");
+    var judul = $("#judul");
+    getnow();
+
+    var totalTime = 15; // 3 menit dalam detik
+    var currentTime = 0;
+    var countime= 30;
+
+    var interval = setInterval(function() {
+      currentTime++;
+      var minutes = Math.floor(currentTime / 60);
+      var seconds = currentTime % 60;
+      timer.text(pad(minutes) + ":" + pad(seconds));
+
+      if (currentTime >= totalTime) {
+        currentTime = 0;
+        // clearInterval(interval);
+        // totalTime=totalTime+countime;
+        // loadIframe();
+        nextButton.show();
+      }
+    }, 1000);
+
+    video.addEventListener("play", function() {
+      interval = setInterval(function() {
+        currentTime++;
+        var minutes = Math.floor(currentTime / 60);
+        var seconds = currentTime % 60;
+        timer.text(pad(minutes) + ":" + pad(seconds));
+
+        if (currentTime >= totalTime) {
+          clearInterval(interval);
+          nextButton.show();
+        }
+      }, 1000);
+    });
+
+    video.addEventListener("pause", function() {
+      clearInterval(interval);
+    });
+
+    nextButton.click(function() {
+      // Lakukan aksi selanjutnya
+      // Contoh: pindah ke video berikutnya
+      // alert("tunggu sebentar");
+      loadIframe();
+
+    });
+
+    function pad(number) {
+      if (number < 10) {
+        return "0" + number;
+      }
+      return number;
+    }
+
+    function loadIframe() {
+        var url = "https://script.google.com/macros/s/AKfycbxCXWUklhOWJ7FPkqy3VwzVPPWzE2BnPLR5zL7YekBIDU7b4FjdznB4eNHp7yoL7J0S/exec?action=update&kode="+kode;
+        
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(response) {
+                console.log("Response:", response);  // Mencetak respons ke konsol
+                getnow();
+                document.getElementById("next-button").style.visibility = "hidden";
+                // alert("berhasil menambahkan 10 rupiah doorprize silahkan kembali");
+                
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);  // Mencetak pesan kesalahan ke konsol
+                // alert("Terjadi kesalahan. Mohon coba lagi.");
+            }
+        });
+    }
+
+    function getnow() {
+        var url = "https://script.google.com/macros/s/AKfycbxCXWUklhOWJ7FPkqy3VwzVPPWzE2BnPLR5zL7YekBIDU7b4FjdznB4eNHp7yoL7J0S/exec?action=getdata&kode="+kode;
+        
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(response) {
+                console.log("Response:", response);  // Mencetak respons ke konsol
+                document.getElementById("judul").innerHTML = "hasil nambang kamu sekarang adalah Rp. " + response;
+                
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log("Error:", textStatus, errorThrown);  // Mencetak pesan kesalahan ke konsol
+                alert("Terjadi kesalahan. Mohon coba lagi.");
+            }
+        });
+    }
+  });
+  </script>
+</body>
+</html>
