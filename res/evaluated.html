@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buka Dana</title>
+</head>
+<body>
+    <button onclick="openDana()">Buka Dana</button>
+
+    <script>
+        function openDana() {
+            var timeout;
+            var hasHandler = false;
+
+            var intentURI = "intent://link.dana.id/kaget?c=smepnnqmj&r=cMU7Ft#Intent;package=id.dana;scheme=https;end";
+            var fallbackURL = "https://link.dana.id/kaget?c=smepnnqmj&r=cMU7Ft";
+
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+
+            // Handler jika aplikasi terbuka
+            function openApp() {
+                hasHandler = true;
+                document.body.removeChild(iframe);
+                clearTimeout(timeout);
+            }
+
+            // Buat iframe untuk membuka aplikasi
+            iframe.onload = openApp;
+            iframe.src = intentURI;
+
+            // Tambahkan iframe ke dokumen
+            document.body.appendChild(iframe);
+
+            // Set timeout untuk fallback
+            timeout = setTimeout(function() {
+                if (!hasHandler) {
+                    document.body.removeChild(iframe);
+                    window.location.href = fallbackURL;
+                }
+            }, 2000); // Ubah timeout sesuai kebutuhan
+        }
+    </script>
+</body>
+</html>
