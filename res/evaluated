@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .ad-large {
+            display: none;
+            background-color: #f8d7da;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .ad-small {
+            display: none;
+            background-color: #d1ecf1;
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Control Page Title and Ads</h1>
+        <button class="btn btn-primary mb-2" onclick="changeTitle('back')">Back</button>
+        <button class="btn btn-secondary mb-2" onclick="changeTitle('judulsatu')">Judul Satu</button>
+        <button class="btn btn-success mb-2" onclick="changeTitle('judul2')">Judul 2</button>
+        <button class="btn btn-danger mb-2" onclick="changeTitle('judul3')">Judul 3</button>
+        <button class="btn btn-warning mb-2" onclick="gotoUrl()">Go to http.doainku.com</button>
+        <button class="btn btn-info mb-2" onclick="showAd('large')">Show Iklan Besar</button>
+        <button class="btn btn-dark mb-2" onclick="showAd('small')">Show Iklan Kecil</button>
+        <button class="btn btn-light mb-2" onclick="changeTitle('judul atas')">Judul Atas</button>
+
+        <div class="ad-large">This is a large ad.</div>
+        <div class="ad-small">This is a small ad.</div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function changeTitle(newTitle) {
+            document.title = newTitle;
+        }
+
+        function gotoUrl() {
+            window.location.href = 'http://doainku.com';
+        }
+
+        function showAd(size) {
+            document.querySelector('.ad-large').style.display = 'none';
+            document.querySelector('.ad-small').style.display = 'none';
+            if (size === 'large') {
+                document.querySelector('.ad-large').style.display = 'block';
+            } else if (size === 'small') {
+                document.querySelector('.ad-small').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
